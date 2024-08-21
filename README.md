@@ -20,72 +20,82 @@ npm i ngx-clerk
 ## Getting Started
 
 To begin using `ngx-clerk` in your project, follow these steps:
+
 1. Create an app in [Clerk Dashboard](https://dashboard.clerk.com/) and get the Publishable Key.
 2. **Inject the ClerkService**: In your `app.component.ts`, inject the `ClerkService` and call its `__init` method. You need to provide at least the Publishable Key and, optionally, any `ClerkOptions`.
+
 ```typescript
 // Example: app.component.ts
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { ClerkService } from 'ngx-clerk';
+import { Component } from "@angular/core";
+import { RouterOutlet } from "@angular/router";
+import { ClerkService } from "ngx-clerk";
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: true,
   imports: [RouterOutlet],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  templateUrl: "./app.component.html",
+  styleUrl: "./app.component.css",
 })
 export class AppComponent {
   constructor(private _clerk: ClerkService) {
-    this._clerk.__init({ 
-      publishableKey: 'pk_test_XXXXXXXX'
-     });
+    this._clerk.__init({
+      publishableKey: "pk_test_XXXXXXXX",
+    });
   }
 }
-
 ```
+
 3. **Utilize Observables**: Use the observables provided by the `ClerkService` to access and manage the state throughout your application.
-4. **Route Guarding**: Leverage the guard to protect routes, ensuring that certain parts of your application are accessible only after authentication.
+4. **Route Guarding**: Leverage two types of guard to protect routes, ensuring that certain parts of your application are accessible only after authentication or when you are not authenticated.
+
 ```typescript
 // Example: app-routes.ts
-import { Routes } from '@angular/router';
-import { catchAllRoute, AuthGuardService } from 'ngx-clerk';
-import { UserProfilePageComponent } from './pages/user-profile-page.component';
-import { HomePageComponent } from './pages/home-page.component';
+import { Routes } from "@angular/router";
+import { catchAllRoute, ClerkAuthGuardService, ClerkNoAuthGuardService } from "ngx-clerk";
+import { UserProfilePageComponent } from "./pages/user-profile-page.component";
+import { HomePageComponent } from "./pages/home-page.component";
+import { LoginPageComponent } from "./pages/login-page.component";
 
 export const routes: Routes = [
-    { 
-        matcher: catchAllRoute('user'), 
-        component: UserProfilePageComponent, 
-        canActivate: [AuthGuardService] 
-    },
-    { 
-        path: '', 
-        component: HomePageComponent
-    }
+  {
+    matcher: catchAllRoute("user"),
+    component: UserProfilePageComponent,
+    canActivate: [ClerkAuthGuardService],
+  },
+  {
+    path: "login",
+    component: LoginPageComponent,
+    canActivate: [ClerkNoAuthGuardService],
+  },
+  {
+    path: "",
+    component: HomePageComponent,
+  },
 ];
-
 ```
 
 ## Features
 
 - **Clerk UI Components**: All Clerk UI components are readily available and prefixed with `clerk-`. Available components:
-    1. `<clerk-sign-in />`
-    2. `<clerk-sign-up />`
-    3. `<clerk-user-profile />`
-    4. `<clerk-user-button />`
-    5. `<clerk-organization-profile />`
-    6. `<clerk-organization-switcher />`
-    7. `<clerk-organization-list />`
-    8. `<clerk-create-organization />`
+
+  1. `<clerk-sign-in />`
+  2. `<clerk-sign-up />`
+  3. `<clerk-user-profile />`
+  4. `<clerk-user-button />`
+  5. `<clerk-organization-profile />`
+  6. `<clerk-organization-switcher />`
+  7. `<clerk-organization-list />`
+  8. `<clerk-create-organization />`
 
 - **ClerkService**: This service is a central part of the package, offering observables for various Clerk resources:
-    - `user$` - Emits every time the `UserResource` is updated
-    - `session$` - Emits every time the `SessionResource` is updated
-    - `organization$` - Emits every time the `OrganizationResource` is updated
-    - `client$` - Emits every time the `ClientResource` is updated
-    - `clerk$` - Emits when Clerk has loaded
-- **AuthGuardService**: This service implements a `canActivate` that can be used to protect routes in your application.
+  - `user$` - Emits every time the `UserResource` is updated
+  - `session$` - Emits every time the `SessionResource` is updated
+  - `organization$` - Emits every time the `OrganizationResource` is updated
+  - `client$` - Emits every time the `ClientResource` is updated
+  - `clerk$` - Emits when Clerk has loaded
+- **ClerkAuthGuardService**: This service implements `canActivate` and `canActivateChild` that can be used to protect routes in your application.
+- **ClerkNoAuthGuardService**: This service implements `canActivate` and `canActivateChild` that can be used to avoid routes in your application that should not be accessed when logged in.
 
 ## Remaining Tasks
 
